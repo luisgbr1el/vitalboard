@@ -7,7 +7,7 @@
   "version": "1.0.0",
   "type": "module",
   "main": "electron/main.js",
-  "license":"MIT",
+  "license": "MIT",
   "scripts": {
     "dev": "concurrently --kill-others --names \"SERVER,CLIENT\" --prefix-colors \"blue,green\" \"npm run server\" \"npm run client\"",
     "server": "node server/server.js",

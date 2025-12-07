@@ -25,11 +25,11 @@ function initializeAppData() {
     if (!existsSync(appDataDir)) {
       mkdirSync(appDataDir, { recursive: true });
     }
-    
+
     if (!existsSync(serverDataDir)) {
       mkdirSync(serverDataDir, { recursive: true });
     }
-    
+
     if (!existsSync(uploadsDir)) {
       mkdirSync(uploadsDir, { recursive: true });
     }
@@ -130,22 +130,22 @@ async function startServer() {
     process.env.CHARACTERS_PATH = join(serverDataDir, 'characters.json');
     process.env.UPLOADS_DIR = uploadsDir;
     process.env.NODE_ENV = isDev ? 'development' : 'production';
-    
+
     let serverModulePath;
     if (isDev)
       serverModulePath = join(__dirname, '../server/server.js');
     else
       serverModulePath = join(process.resourcesPath, 'app.asar', 'server', 'server.js');
-    
+
     const serverModuleURL = pathToFileURL(serverModulePath).href;
     console.log('Loading server from:', serverModuleURL);
-    
+
     const serverModule = await import(serverModuleURL);
     const startExpressServer = serverModule.startServer;
-    
+
     serverInstance = await startExpressServer();
     console.log(`Server started on port ${serverInstance.port}`);
-    
+
     return serverInstance;
   } catch (error) {
     console.error('Failed to start server:', error);
@@ -165,9 +165,9 @@ app.whenReady().then(async () => {
     initializeAppData();
     const serverData = await startServer();
     const serverPort = serverData.port;
-    
+
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     if (!isDev) {
       await waitOn({
         resources: [`http://localhost:${serverPort}/api/characters`],
@@ -188,7 +188,7 @@ app.whenReady().then(async () => {
         verbose: true
       });
     }
-    
+
     createWindow();
 
   } catch (error) {

@@ -30,19 +30,19 @@ const findAvailablePort = (startPort = 3000, maxPort = 3100) => {
       }
 
       const server = net.createServer();
-      
+
       server.listen(port, () => {
         server.once('close', () => {
           resolve(port);
         });
         server.close();
       });
-      
+
       server.on('error', () => {
         tryPort(port + 1);
       });
     };
-    
+
     tryPort(startPort);
   });
 };
@@ -50,15 +50,15 @@ const findAvailablePort = (startPort = 3000, maxPort = 3100) => {
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { 
-    origin: ["http://localhost:5173", "http://localhost:3000", "file://"], 
+  cors: {
+    origin: ["http://localhost:5173", "http://localhost:3000", "file://"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
   }
 });
 
 app.use(cors({
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     if (!origin || origin.startsWith('http://localhost:') || origin.startsWith('file://')) {
       callback(null, true);
     } else {
@@ -103,9 +103,9 @@ app.use("/uploads", (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  
+
   res.header('Cache-Control', 'public, max-age=31536000');
-  
+
   next();
 }, express.static(uploadDir));
 
@@ -217,9 +217,9 @@ app.get("/api/settings", (req, res) => {
 app.put("/api/settings", (req, res) => {
   try {
     const currentSettings = readJson(SETTINGS_PATH, defaultSettings);
-    
+
     const settingsBody = { ...req.body };
-    
+
     // Validação simplificada - apenas verificar chaves principais
     for (const key in settingsBody) {
       if (!currentSettings.hasOwnProperty(key)) {
@@ -246,7 +246,7 @@ app.put("/api/settings", (req, res) => {
 
     // Merge profundo das configurações
     const newSettings = JSON.parse(JSON.stringify(currentSettings)); // Deep clone
-    
+
     // Merge manual para preservar a estrutura
     for (const key in settingsBody) {
       if (typeof settingsBody[key] === 'object' && settingsBody[key] !== null && !Array.isArray(settingsBody[key])) {
@@ -257,11 +257,11 @@ app.put("/api/settings", (req, res) => {
         newSettings[key] = settingsBody[key];
       }
     }
-    
+
     writeJson(SETTINGS_PATH, newSettings);
-    
+
     const savedSettings = readJson(SETTINGS_PATH, defaultSettings);
-    
+
     io.emit("settingsUpdated", newSettings);
     res.status(200).json(newSettings);
   } catch (error) {
@@ -355,9 +355,9 @@ app.post("/api/characters", (req, res) => {
 
   chars.push(characterWithId);
   writeJson(CHARACTERS_PATH, chars);
-  
+
   const savedChars = readJson(CHARACTERS_PATH, defaultCharacters);
-  
+
   io.emit("charactersUpdated", chars);
   res.status(201).json(characterWithId);
 });
@@ -778,20 +778,20 @@ io.on("connection", (socket) => {
 const startServer = async () => {
   try {
     const PORT = process.env.PORT || await findAvailablePort(3000, 3100);
-    
+
     const corsOrigins = [
       "http://localhost:5173",
       `http://localhost:${PORT}`,
       "http://localhost:3000",
       "http://localhost:3001",
     ];
-    
+
     io.engine.opts.cors.origin = corsOrigins;
-    
+
     server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
-    
+
     return { server, port: PORT, io };
   } catch (error) {
     console.error('Failed to start server:', error.message);
