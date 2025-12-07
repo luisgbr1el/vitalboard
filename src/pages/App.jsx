@@ -5,8 +5,8 @@ import NewCharacterModal from '../components/NewCharacterModal.jsx'
 import SettingsModal from '../components/SettingsModal.jsx'
 import HealthManagementModal from '../components/HealthManagementModal.jsx';
 import CharacterManagementModal from '../components/CharacterManagementModal.jsx';
+import TitleBar from '../components/TitleBar.jsx';
 import '../styles/App.css'
-import charactersList from "../../server/data/characters.json"
 import { useI18n } from '../i18n/i18nContext';
 import { useAlert } from '../hooks/useAlert.jsx';
 import apiConfig from '../utils/apiConfig.js';
@@ -14,10 +14,18 @@ import apiConfig from '../utils/apiConfig.js';
 function App() {
   const { t } = useI18n();
   const { showAlert } = useAlert();
-  let [characters, setCharacters] = useState(charactersList);
+  let [characters, setCharacters] = useState([]);
 
   useEffect(() => {
     apiConfig.initialize();
+
+    fetch(apiConfig.getApiUrl('/characters'))
+      .then(response => response.json())
+      .then(data => setCharacters(data))
+      .catch(error => {
+        console.error('Error loading characters:', error);
+        showAlert('error', t('characters.load_error') || 'Error loading characters');
+      });
   }, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -164,7 +172,9 @@ function App() {
 
   return (
     <div className="App">
+      <TitleBar />
       <div className='navbar'>
+        <h3 className='title'>Vitalboard</h3>
         <button className='button' onClick={handleOpenSettingsModal}>
           <TbSettings size={iconsSize} />
           <p className='button-text'>{t('common.settings')}</p>

@@ -4,6 +4,7 @@ import { MdOutlineImage } from "react-icons/md";
 import FileSessionManager from '../utils/fileSessionManager.js';
 import { useI18n } from '../i18n/i18nContext';
 import { useAlert } from '../hooks/useAlert';
+import apiConfig from '../utils/apiConfig.js';
 
 function SettingsModal({ isOpen, onClose, onUpdate }) {
     const { t, changeLocale } = useI18n();
@@ -27,9 +28,14 @@ function SettingsModal({ isOpen, onClose, onUpdate }) {
     useEffect(() => {
         if (isOpen) {
             setActiveTab("general");
-            fetchSettings();
+            initializeAndFetchSettings();
         }
     }, [isOpen]);
+
+    const initializeAndFetchSettings = async () => {
+        await apiConfig.initialize();
+        fetchSettings();
+    };
 
     const fetchSettings = async () => {
         try {
@@ -59,6 +65,8 @@ function SettingsModal({ isOpen, onClose, onUpdate }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        await apiConfig.initialize();
 
         if (currentHealthIconFileName)
             await fileSessionRef.current.confirmFile(currentHealthIconFileName);
@@ -134,7 +142,7 @@ function SettingsModal({ isOpen, onClose, onUpdate }) {
     return (
         <>
             <div className="modal-overlay">
-                <div className="modal-content" style={{ maxWidth: '55%' }}>
+                <div className="modal-content" style={{ maxWidth: '70%' }}>
                     <h2 className="title">{t('settings.title')}</h2>
                     <div className="sidebar-modal">
                         <div className='modal-navbar'>

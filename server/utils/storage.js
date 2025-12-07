@@ -1,11 +1,12 @@
 import fs from "fs";
 import path from "path";
 
-export function readJson(relPath, fallback = null) {
-  const full = path.resolve(process.cwd(), relPath);
+export function readJson(filePath, fallback = null) {
+  const full = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
   try {
     if (!fs.existsSync(full)) {
       if (fallback !== null) {
+        fs.mkdirSync(path.dirname(full), { recursive: true });
         fs.writeFileSync(full, JSON.stringify(fallback, null, 2));
         return fallback;
       }
@@ -22,8 +23,8 @@ export function readJson(relPath, fallback = null) {
   }
 }
 
-export function writeJson(relPath, data) {
-  const full = path.resolve(process.cwd(), relPath);
+export function writeJson(filePath, data) {
+  const full = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
   try {
     fs.mkdirSync(path.dirname(full), { recursive: true });
     const jsonString = JSON.stringify(data, null, 2);

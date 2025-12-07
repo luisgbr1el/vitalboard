@@ -175,7 +175,7 @@ function CharacterManagementModal({ isOpen, onClose, characters, onUpdateCharact
                     types: [{
                         accept: { 'text/json': ['.json'] }
                     }],
-                    suggestedName: 'characters.rpg.json'
+                    suggestedName: 'characters.vitalboard.json'
                 });
 
                 const writable = await fileHandle.createWritable();

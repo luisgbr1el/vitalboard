@@ -2,6 +2,11 @@
 
 * {
   box-sizing: border-box;
+  user-select: none;
+}
+
+input, textarea {
+  user-select: text;
 }
 
 :root {
@@ -67,11 +72,12 @@ svg {
 
 .navbar {
   width: 100%;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 10px;
   display: flex;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   box-sizing: border-box;
+  margin-top: 32px;
 }
 
 .characters {

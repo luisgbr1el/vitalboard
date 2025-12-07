@@ -50,7 +50,9 @@ class ApiConfig {
   }
 
   getUploadUrl(filename) {
-    return this.getUrl(`/uploads/${filename}`);
+    const url = this.getUrl(`/uploads/${filename}`);
+    console.log(`Generated upload URL: ${url} for filename: ${filename}`);
+    return url;
   }
 }
 

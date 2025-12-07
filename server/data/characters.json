@@ -1,2 +1,34 @@
 [
+  {
+    "id": "026bd36c-a2f4-4afd-b38c-24280a9df60d",
+    "name": "Victor",
+    "hp": 15,
+    "maxHp": 20,
+    "icon": "/uploads/1763671124100-lost trip utopia personagens.png",
+    "createdAt": "2025-11-09T13:42:15.153Z"
+  },
+  {
+    "id": "6990edcd-2ad3-46a4-8e87-be477c5e3651",
+    "name": "Ricardo",
+    "hp": 7,
+    "maxHp": 20,
+    "icon": "/uploads/1763671132152-lost trip utopia personagens.png",
+    "createdAt": "2025-11-09T13:42:15.153Z"
+  },
+  {
+    "id": "da809ef1-6ede-4011-8a7f-01482d2e0a8b",
+    "name": "Mikhail",
+    "hp": 13,
+    "maxHp": 20,
+    "icon": "/uploads/1763671139942-lost trip utopia personagens.png",
+    "createdAt": "2025-11-09T13:42:15.153Z"
+  },
+  {
+    "id": "18ac6ae4-778a-49c6-a9d2-59c958d22252",
+    "name": "Ernesto",
+    "hp": 0,
+    "maxHp": 20,
+    "icon": "/uploads/1763670786412-lost trip utopia personagens.png",
+    "createdAt": "2025-11-09T13:42:15.153Z"
+  }
 ]

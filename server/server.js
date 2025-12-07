@@ -7,7 +7,12 @@ import path from "path";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import net from "net";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import { readJson, writeJson } from "./utils/storage.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const getLocalTimestamp = () => {
   const now = new Date();
@@ -45,16 +50,44 @@ const findAvailablePort = (startPort = 3000, maxPort = 3100) => {
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: ["http://localhost:5173", "http://localhost:3000"], credentials: true }
+  cors: { 
+    origin: ["http://localhost:5173", "http://localhost:3000", "file://"], 
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+  }
 });
 
-app.use(cors());
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || origin.startsWith('http://localhost:') || origin.startsWith('file://')) {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-session-id"]
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.set('json spaces', 2);
 
-const uploadDir = path.join(process.cwd(), "server", "uploads");
+const uploadDir = process.env.UPLOADS_DIR || path.join(__dirname, "..", "temp-uploads");
+const SETTINGS_PATH = process.env.SETTINGS_PATH || path.join(__dirname, "..", "temp-data", "settings.json");
+const CHARACTERS_PATH = process.env.CHARACTERS_PATH || path.join(__dirname, "..", "temp-data", "characters.json");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const dataDir = path.dirname(SETTINGS_PATH);
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadDir);
@@ -65,13 +98,19 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
-app.use("/uploads", express.static(uploadDir));
 
-const SETTINGS_PATH = "./server/data/settings.json";
-const CHARACTERS_PATH = "./server/data/characters.json";
+app.use("/uploads", (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  
+  res.header('Cache-Control', 'public, max-age=31536000');
+  
+  next();
+}, express.static(uploadDir));
 
-let temporaryFiles = new Map(); // sessionId -> Set<filePath>
-let fileToSession = new Map(); // filePath -> sessionId
+let temporaryFiles = new Map();
+let fileToSession = new Map();
 
 const deleteFile = (filePath) => {
   try {
@@ -150,21 +189,27 @@ const defaultSettings = {
     show_name: true,
     font_size: 14,
     font_family: "Arial",
-    font_color: "#FFFFFF",
+    font_color: "#000000",
     icons_size: 64,
     character_icon_size: 170,
     health_icon_file_path: null
   }
 };
 const defaultCharacters = [];
-readJson(SETTINGS_PATH, defaultSettings);
-readJson(CHARACTERS_PATH, defaultCharacters);
+
+if (!fs.existsSync(SETTINGS_PATH)) {
+  writeJson(SETTINGS_PATH, defaultSettings);
+}
+if (!fs.existsSync(CHARACTERS_PATH)) {
+  writeJson(CHARACTERS_PATH, defaultCharacters);
+}
 
 app.get("/api/settings", (req, res) => {
   try {
     const settings = readJson(SETTINGS_PATH, defaultSettings);
     res.json(settings);
   } catch (error) {
+    console.error(`Error reading settings:`, error);
     res.status(500).json({ error: "Failed to read settings" });
   }
 });
@@ -172,9 +217,13 @@ app.get("/api/settings", (req, res) => {
 app.put("/api/settings", (req, res) => {
   try {
     const currentSettings = readJson(SETTINGS_PATH, defaultSettings);
+    
     const settingsBody = { ...req.body };
+    
+    // Validação simplificada - apenas verificar chaves principais
     for (const key in settingsBody) {
-      if (!currentSettings[key]) {
+      if (!currentSettings.hasOwnProperty(key)) {
+        console.error(`Invalid setting key: ${key}`);
         return res.status(400).json({ error: `This key is not a setting: ${key}` });
       }
     }
@@ -195,17 +244,34 @@ app.put("/api/settings", (req, res) => {
       }
     }
 
-    const newSettings = { ...currentSettings, ...settingsBody };
+    // Merge profundo das configurações
+    const newSettings = JSON.parse(JSON.stringify(currentSettings)); // Deep clone
+    
+    // Merge manual para preservar a estrutura
+    for (const key in settingsBody) {
+      if (typeof settingsBody[key] === 'object' && settingsBody[key] !== null && !Array.isArray(settingsBody[key])) {
+        // Se for objeto, fazer merge das propriedades
+        newSettings[key] = { ...newSettings[key], ...settingsBody[key] };
+      } else {
+        // Se for valor primitivo, substituir diretamente
+        newSettings[key] = settingsBody[key];
+      }
+    }
+    
     writeJson(SETTINGS_PATH, newSettings);
+    
+    const savedSettings = readJson(SETTINGS_PATH, defaultSettings);
+    
     io.emit("settingsUpdated", newSettings);
-    res.status(201).json(newSettings);
+    res.status(200).json(newSettings);
   } catch (error) {
-    res.status(500).json({ error: "Failed to update settings" });
+    console.error(`Error updating settings:`, error);
+    res.status(500).json({ error: "Failed to update settings", details: error.message });
   }
 });
 
 app.post("/api/upload", (req, res) => {
-  upload.single("file")(req, res, (err) => {
+  upload.single('file')(req, res, (err) => {
     if (err) {
       console.error("Multer error:", err);
       if (err.code === 'LIMIT_UNEXPECTED_FILE') {
@@ -218,9 +284,9 @@ app.post("/api/upload", (req, res) => {
     }
 
     if (!req.file) {
+      console.error("No file uploaded");
       return res.status(400).json({ error: "No file uploaded" });
     }
-
     const sessionId = req.headers['x-session-id'] || 'default';
     const fileName = req.file.filename;
     const url = `/uploads/${fileName}`;
@@ -266,7 +332,7 @@ app.delete("/api/delete-file", (req, res) => {
 });
 
 app.get("/api/characters", (req, res) => {
-  const chars = readJson(CHARACTERS_PATH, defaultCharacters);
+  const chars = readJson(CHARACTERS_PATH, []);
   res.json(chars);
 });
 
@@ -289,6 +355,9 @@ app.post("/api/characters", (req, res) => {
 
   chars.push(characterWithId);
   writeJson(CHARACTERS_PATH, chars);
+  
+  const savedChars = readJson(CHARACTERS_PATH, defaultCharacters);
+  
   io.emit("charactersUpdated", chars);
   res.status(201).json(characterWithId);
 });
@@ -669,13 +738,24 @@ app.get("/overlay/:id", (req, res) => {
   res.send(initialHtml);
 });
 
-app.use(express.static(path.join(process.cwd(), "client", "dist")));
+// Servir arquivos estáticos da build
+const distDir = path.join(__dirname, '..', 'dist');
+console.log(`Serving static files from: ${distDir}`);
+console.log(`Dist directory exists: ${fs.existsSync(distDir)}`);
+app.use(express.static(distDir));
+
+// Rota root para servir index.html
+app.get('/', (req, res) => {
+  const indexPath = path.join(distDir, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('index.html not found');
+  }
+});
 
 io.on("connection", (socket) => {
-  console.log("socket connected:", socket.id);
-
   socket.on("disconnect", () => {
-    console.log("socket disconnected:", socket.id);
   });
 
   socket.on("updateCharacter", (payload) => {
@@ -710,7 +790,6 @@ const startServer = async () => {
     
     server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
-      console.log(`Available ports checked: 3000-3100`);
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);

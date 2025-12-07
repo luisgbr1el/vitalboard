@@ -21,6 +21,9 @@ const findApiPort = async () => {
   return 3000
 };
 
+// Verifica se está rodando no Electron
+const isElectron = process.env.ELECTRON === 'true' || process.env.NODE_ENV === 'electron';
+
 // https://vite.dev/config/
 export default defineConfig(async () => {
   const apiPort = await findApiPort();
@@ -30,7 +33,19 @@ export default defineConfig(async () => {
   
   return {
     plugins: [react()],
+    base: './', // Importante para Electron
+    build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
+      rollupOptions: {
+        output: {
+          // Melhor compatibilidade com Electron
+          format: 'es'
+        }
+      }
+    },
     server: {
+      port: 5173,
       proxy: {
         '/api': {
           target,
@@ -49,6 +64,10 @@ export default defineConfig(async () => {
           changeOrigin: true,
         }
       }
+    },
+    // Configurações específicas para desenvolvimento no Electron
+    define: {
+      __IS_ELECTRON__: isElectron
     }
   };
 });
