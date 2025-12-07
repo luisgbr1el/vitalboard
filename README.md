@@ -1,4 +1,3 @@
-# Vitalboard
 <div align="center">
 <img width="200" height="200" alt="icon" src="https://github.com/user-attachments/assets/5b9b1c54-ec88-4c8f-8185-97cd2e169026" />
 
@@ -11,7 +10,7 @@
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=Vite&logoColor=white)
 ![Electron](https://img.shields.io/badge/-electron-F1C40F?style=for-the-badge&labelColor=17202A&logo=electron&logoColor=61DBFB)
 
-A modern character health management application built with React + Vite, Electron, and Express. Vitalboard provides a streamlined interface for tracking and managing character health points, perfect for tabletop RPGs, gaming sessions, or any scenario requiring real-time health tracking.
+A modern character health management application built with React + Vite, Electron, and Express. **Vitalboard** provides a streamlined interface for tracking and managing character health points, perfect for tabletop RPGs, gaming sessions, or any scenario requiring real-time health tracking.
 </div>
 
 ## Features
