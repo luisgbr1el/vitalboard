@@ -46,8 +46,8 @@
     "wait-on": "^8.0.1"
   },
   "build": {
-    "appId": "com.characters.livestream.overlay",
-    "productName": "Characters Livestream Overlay",
+    "appId": "com.luisgbr1el.vitalboard",
+    "productName": "Vitalboard",
     "directories": {
       "output": "release"
     },
