@@ -1,6 +1,14 @@
 # Vitalboard
+<div align="center">
+<img width="300" height="300" alt="icon" src="https://github.com/user-attachments/assets/5b9b1c54-ec88-4c8f-8185-97cd2e169026" />
+
+[![GitHub forks](https://img.shields.io/github/forks/luisgbr1el/vitalboard?style=for-the-badge)](https://github.com/luisgbr1el/vitalboard/forks)
+[![GitHub stars](https://img.shields.io/github/stars/luisgbr1el/vitalboard?style=for-the-badge)](https://github.com/luisgbr1el/vitalboard/stargazers)
+[![GitHub license](https://img.shields.io/github/license/luisgbr1el/vitalboard?style=for-the-badge)](https://github.com/luisgbr1el/vitalboard/blob/main/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/luisgbr1el/vitalboard?style=for-the-badge)](https://github.com/luisgbr1el/vitalboard/issues)
 
 A modern character health management application built with React, Electron, and Express. Vitalboard provides a streamlined interface for tracking and managing character health points, perfect for tabletop RPGs, gaming sessions, or any scenario requiring real-time health tracking.
+</div>
 
 ## Features
 
