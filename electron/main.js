@@ -1,14 +1,14 @@
 import { app, BrowserWindow, Menu, shell, dialog, ipcMain } from 'electron';
-import { spawn } from 'child_process';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { pathToFileURL } from 'url';
 import { readFileSync, existsSync, mkdirSync, copyFileSync, writeFileSync } from 'fs';
 import waitOn from 'wait-on';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 const port = process.env.PORT || 3000;
 const vitePort = process.env.VITE_PORT || 5173;
 
@@ -18,7 +18,7 @@ const serverDataDir = join(appDataDir, 'data');
 const uploadsDir = join(appDataDir, 'uploads');
 
 let mainWindow;
-let serverProcess;
+let serverInstance = null;
 
 function initializeAppData() {
   try {
@@ -124,76 +124,53 @@ ipcMain.on('window-close', () => {
 });
 
 async function startServer() {
-  return new Promise((resolve, reject) => {
-    const serverPath = join(__dirname, '../server/server.js');
-
-    serverProcess = spawn('node', [serverPath], {
-      cwd: join(__dirname, '..'),
-      env: { 
-        ...process.env, 
-        NODE_ENV: isDev ? 'development' : 'production',
-        USER_DATA_PATH: appDataDir,
-        SETTINGS_PATH: join(serverDataDir, 'settings.json'),
-        CHARACTERS_PATH: join(serverDataDir, 'characters.json'),
-        UPLOADS_DIR: uploadsDir
-      },
-      stdio: ['pipe', 'pipe', 'pipe']
-    });
-
-    let resolved = false;
-
-    serverProcess.stdout.on('data', (data) => {
-      const output = data.toString();
-      if ((output.includes('Server running on') || output.includes('listening on')) && !resolved) {
-        resolved = true;
-        setTimeout(() => resolve(), 1000);
-      }
-    });
-
-    serverProcess.stderr.on('data', (data) => {
-      console.error(`Server Error: ${data}`);
-    });
-
-    serverProcess.on('error', (error) => {
-      console.error('Failed to start server:', error);
-      if (!resolved) {
-        resolved = true;
-        reject(error);
-      }
-    });
-
-    serverProcess.on('close', (code) => {
-      if (code !== 0 && !resolved) {
-        resolved = true;
-        reject(new Error(`Server process exited with code ${code}`));
-      }
-    });
-
-    setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        resolve();
-      }
-    }, 8000);
-  });
+  try {
+    process.env.USER_DATA_PATH = appDataDir;
+    process.env.SETTINGS_PATH = join(serverDataDir, 'settings.json');
+    process.env.CHARACTERS_PATH = join(serverDataDir, 'characters.json');
+    process.env.UPLOADS_DIR = uploadsDir;
+    process.env.NODE_ENV = isDev ? 'development' : 'production';
+    
+    let serverModulePath;
+    if (isDev)
+      serverModulePath = join(__dirname, '../server/server.js');
+    else
+      serverModulePath = join(process.resourcesPath, 'app.asar', 'server', 'server.js');
+    
+    const serverModuleURL = pathToFileURL(serverModulePath).href;
+    console.log('Loading server from:', serverModuleURL);
+    
+    const serverModule = await import(serverModuleURL);
+    const startExpressServer = serverModule.startServer;
+    
+    serverInstance = await startExpressServer();
+    console.log(`Server started on port ${serverInstance.port}`);
+    
+    return serverInstance;
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    throw error;
+  }
 }
 
 function stopServer() {
-  if (serverProcess) {
-    serverProcess.kill();
-    serverProcess = null;
+  if (serverInstance && serverInstance.server) {
+    serverInstance.server.close();
+    serverInstance = null;
   }
 }
 
 app.whenReady().then(async () => {
   try {
     initializeAppData();
-    await startServer();
+    const serverData = await startServer();
+    const serverPort = serverData.port;
+    
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     if (!isDev) {
       await waitOn({
-        resources: [`http://localhost:${port}/api/characters`],
+        resources: [`http://localhost:${serverPort}/api/characters`],
         delay: 2000,
         interval: 500,
         timeout: 30000,
@@ -202,7 +179,7 @@ app.whenReady().then(async () => {
     } else {
       await waitOn({
         resources: [
-          `http://localhost:${port}/api/characters`,
+          `http://localhost:${serverPort}/api/characters`,
           `http://localhost:${vitePort}`
         ],
         delay: 2000,

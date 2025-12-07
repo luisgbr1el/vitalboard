@@ -791,10 +791,19 @@ const startServer = async () => {
     server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
+    
+    return { server, port: PORT, io };
   } catch (error) {
     console.error('Failed to start server:', error.message);
-    process.exit(1);
+    throw error;
   }
 };
 
-startServer();
+if (import.meta.url === `file://${process.argv[1]}`) {
+  startServer().catch(error => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  });
+}
+
+export { startServer };
