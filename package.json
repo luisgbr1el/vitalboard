@@ -2,7 +2,7 @@
   "name": "vitalboard",
   "description": "Vitalboard",
   "author": {
-    "name": "Luis Gabriel Araujo",
+    "name": "Luis Gabriel Araújo",
     "email": "luisgabrielaraujo8@gmail.com"
   },
   "homepage": "https://github.com/luisgbr1el/vitalboard",
@@ -60,6 +60,7 @@
       "electron/**/*",
       "server/**/*",
       "node_modules/**/*",
+      "build/**/*",
       "package.json"
     ],
     "win": {
