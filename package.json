@@ -1,7 +1,10 @@
 {
   "name": "vitalboard",
   "description": "Vitalboard",
-  "author": "luisgbr1el",
+  "author": {
+    "name": "Luis Gabriel Araujo",
+    "email": "luisgabrielaraujo8@gmail.com"
+  },
   "homepage": "https://github.com/luisgbr1el/vitalboard",
   "private": true,
   "version": "1.0.0",
