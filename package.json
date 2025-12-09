@@ -117,7 +117,7 @@
           ]
         }
       ],
-      "icon": "build/icon.png",
+      "icon": "build/icons",
       "category": "Utility"
     },
     "publish": null
