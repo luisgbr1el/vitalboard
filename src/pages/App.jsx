@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { TbSettings, TbPlus, TbTools } from "react-icons/tb";
+import { TbSettings, TbPlus, TbTools, TbMoodEmpty } from "react-icons/tb";
 import CharacterCard from '../components/CharacterCard.jsx'
 import NewCharacterModal from '../components/NewCharacterModal.jsx'
 import SettingsModal from '../components/SettingsModal.jsx'
@@ -195,19 +195,26 @@ function App() {
           </div>
         </div>
         <div className='list'>
-          {characters.map((character, index) => (
-            <CharacterCard
-              id={character.id}
-              key={index}
-              name={character.name}
-              icon={character.icon}
-              hp={character.hp}
-              maxHp={character.maxHp}
-              onEdit={() => handleEditCharacter(character)}
-              onHeal={() => handleOpenHealthModal(true, character)}
-              onDamage={() => handleOpenHealthModal(false, character)}
-            />
-          ))}
+          {characters.length === 0 ? (
+            <div className="no-characters">
+              <TbMoodEmpty size={100} />
+              <p>{t('characters.no_characters')}</p>
+            </div>
+          ) : (
+            characters.map((character, index) => (
+              <CharacterCard
+                id={character.id}
+                key={index}
+                name={character.name}
+                icon={character.icon}
+                hp={character.hp}
+                maxHp={character.maxHp}
+                onEdit={() => handleEditCharacter(character)}
+                onHeal={() => handleOpenHealthModal(true, character)}
+                onDamage={() => handleOpenHealthModal(false, character)}
+              />
+            ))
+          )}
         </div>
       </div>
       <NewCharacterModal

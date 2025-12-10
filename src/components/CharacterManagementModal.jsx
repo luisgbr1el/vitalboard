@@ -259,47 +259,51 @@ function CharacterManagementModal({ isOpen, onClose, characters, onUpdateCharact
                                         </div>
                                         <p>{t('characters.created_at')}</p>
                                     </div>
-                                    {charactersList.map((character, index) => (
-                                        <div key={index} className="selectable-list-item">
-                                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                                <input id={character.id} className="select-checkbox" type="checkbox" value="false" onChange={handleIndividualCheckboxChange} />
-                                                {(character.icon && iconExistsMap[character.id]) ? (
-                                                    <img src={character.icon} className="selectable-list-icon" />
-                                                ) : (
-                                                    <div className="selectable-list-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--background-secondary)' }}>
-                                                        <TbUserHexagon size={24} />
-                                                    </div>
-                                                )}
-                                                <p>{character.name}</p>
+                                    {characters.length === 0 ? (
+                                        <p>{t('characters.no_characters')}</p>
+                                    ) : (
+                                        charactersList.map((character, index) => (
+                                            <div key={index} className="selectable-list-item">
+                                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                    <input id={character.id} className="select-checkbox" type="checkbox" value="false" onChange={handleIndividualCheckboxChange} />
+                                                    {(character.icon && iconExistsMap[character.id]) ? (
+                                                        <img src={character.icon} className="selectable-list-icon" />
+                                                    ) : (
+                                                        <div className="selectable-list-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--background-secondary)' }}>
+                                                            <TbUserHexagon size={24} />
+                                                        </div>
+                                                    )}
+                                                    <p>{character.name}</p>
+                                                </div>
+                                                <p>{(() => {
+                                                    const isoString = character.createdAt;
+
+                                                    if (!isoString)
+                                                        return '--';
+
+                                                    try {
+                                                        const [datePart, timePart] = isoString.split('T');
+                                                        const [year, month, day] = datePart.split('-');
+                                                        const [time] = timePart.split('.');
+                                                        const [hour, minute, second] = time.split(':');
+
+                                                        const localDate = new Date(year, month - 1, day, hour, minute, second);
+
+                                                        return localDate.toLocaleString(locale, {
+                                                            day: '2-digit',
+                                                            month: '2-digit',
+                                                            year: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        });
+                                                    } catch (error) {
+                                                        console.error('Error parsing date:', error);
+                                                        return '--';
+                                                    }
+                                                })()}</p>
                                             </div>
-                                            <p>{(() => {
-                                                const isoString = character.createdAt;
-                                                
-                                                if (!isoString)
-                                                    return '--';
-                                                
-                                                try {
-                                                    const [datePart, timePart] = isoString.split('T');
-                                                    const [year, month, day] = datePart.split('-');
-                                                    const [time] = timePart.split('.');
-                                                    const [hour, minute, second] = time.split(':');
-
-                                                    const localDate = new Date(year, month - 1, day, hour, minute, second);
-
-                                                    return localDate.toLocaleString(locale, {
-                                                        day: '2-digit',
-                                                        month: '2-digit',
-                                                        year: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    });
-                                                } catch (error) {
-                                                    console.error('Error parsing date:', error);
-                                                    return '--';
-                                                }
-                                            })()}</p>
-                                        </div>
-                                    ))}
+                                        ))
+                                    )}
                                 </div>
                             </div>
                         </div>

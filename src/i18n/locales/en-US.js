@@ -46,7 +46,8 @@ export default {
         imported_batch: "Characters imported!",
         deleted_batch: "Characters deleted!",
         exported_batch: "Characters exported!",
-        batch_operation_error: "Error while doing a batch operation. Please try again."
+        batch_operation_error: "Error while doing a batch operation. Please try again.",
+        no_characters: "You haven't created any character yet."
     },
     settings: {
         title: "Settings",

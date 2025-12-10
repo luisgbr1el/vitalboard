@@ -131,3 +131,18 @@ svg {
   margin: 0;
   text-align: left;
 }
+
+.no-characters {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  transform: translateY(-50%);
+  padding-top: 30%;
+  color: gray;
+}
+
+.no-characters p {
+  margin: 0;
+  padding: 0;
+}

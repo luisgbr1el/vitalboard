@@ -46,7 +46,8 @@ export default {
         imported_batch: "Personagens importados!",
         deleted_batch: "Personagens deletados!",
         exported_batch: "Personagens exportados!",
-        batch_operation_error: "Erro ao realizar operação em lote. Tente novamente."
+        batch_operation_error: "Erro ao realizar operação em lote. Tente novamente.",
+        no_characters: "Você ainda não criou nenhum personagem."
     },
     settings: {
         title: "Configurações",

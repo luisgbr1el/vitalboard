@@ -301,8 +301,8 @@ function SettingsModal({ isOpen, onClose, onUpdate }) {
 
                                 {activeTab === "about" && (
                                     <div className="modal-column modal-full-width">
-                                        <h4 className='title'>v1.0.0</h4>
-                                        <a href="https://github.com/webbcenter/" target="_blank" rel="noopener noreferrer">GitHub</a>
+                                        v1.0.0
+                                        <a href="https://github.com/luisgbr1el/vitalboard" target="_blank" rel="noopener noreferrer">GitHub</a>
                                     </div>
                                 )}
                             </form>
