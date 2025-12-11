@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import '../styles/Modal.css';
 import { MdOutlineImage } from "react-icons/md";
+import { TbBrandGithub, TbBrandX, TbMail } from "react-icons/tb";
 import FileSessionManager from '../utils/fileSessionManager.js';
 import { useI18n } from '../i18n/i18nContext';
 import { useAlert } from '../hooks/useAlert';
@@ -301,8 +302,26 @@ function SettingsModal({ isOpen, onClose, onUpdate }) {
 
                                 {activeTab === "about" && (
                                     <div className="modal-column modal-full-width">
-                                        v1.0.0
-                                        <a href="https://github.com/luisgbr1el/vitalboard" target="_blank" rel="noopener noreferrer">GitHub</a>
+                                        <h4 className='title'>{t('settings.version_build')}</h4>
+                                        <div className="modal-row">
+                                            <label className='inline-label'>
+                                                <p className='button-text'>v1.0.0-alpha (Icarus)</p>
+                                            </label>
+                                        </div>
+                                        <h4 className='title'>{t('settings.contact')}</h4>
+                                        <div className="modal-row">
+                                            <label className="no-flex-label">
+                                                <a href="https://github.com/luisgbr1el/vitalboard" className="button" target="_blank" rel="noopener noreferrer">
+                                                    <TbBrandGithub size={20} />
+                                                </a>
+                                                <a href="https://x.com/luisgbr1el" className="button" target="_blank" rel="noopener noreferrer">
+                                                    <TbBrandX size={20} />
+                                                </a>
+                                                <a href="mailto:luisgabrielaraujo8@gmail.com" className="button" target="_blank" rel="noopener noreferrer">
+                                                    <TbMail size={20} />
+                                                </a>
+                                            </label>
+                                        </div>
                                     </div>
                                 )}
                             </form>

@@ -69,7 +69,9 @@ export default {
         hp_icon_size: "Tamanho do ícone de HP (px)",
         character_icon_size: "Tam. do ícone do personagem (px)",
         hp_icon: "Ícone de HP",
-        updated: "Configurações atualizadas!"
+        updated: "Configurações atualizadas!",
+        version_build: "Versão/Build",
+        contact: "Contato"
     },
     validation: {
         fill_all_fields: "Por favor, preencha todos os campos.",

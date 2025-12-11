@@ -47,7 +47,7 @@ export default {
         deleted_batch: "Characters deleted!",
         exported_batch: "Characters exported!",
         batch_operation_error: "Error while doing a batch operation. Please try again.",
-        no_characters: "You haven't created any character yet."
+        no_characters: "You haven't created any character yet."  
     },
     settings: {
         title: "Settings",
@@ -69,7 +69,9 @@ export default {
         hp_icon_size: "HP icon size (px)",
         character_icon_size: "Character icon size (px)",
         hp_icon: "HP icon",
-        updated: "Settings updated!"
+        updated: "Settings updated!",
+        version_build: "Version/Build",
+        contact: "Contact"
     },
     validation: {
         fill_all_fields: "Please fill in all fields.",
